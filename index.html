@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Catálogo Cabaña La Ribera · 2do Gran Remate San Rafael de Velasco</title>
+  <meta name="description" content="Catálogo digital del 2do Gran Remate San Rafael de Velasco — Toros y Vaquillas Premium. Cabaña La Ribera, Nelore y Nelore Mocho.">
+  <meta name="theme-color" content="#1a0f08">
+  <link rel="icon" href="assets/logo-header.webp" type="image/webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800;900&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500;1,600&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip" href="#book">Saltar al catálogo</a>
+
+  <header class="topbar">
+    <div class="brand">
+      <img src="assets/logo-header.webp" alt="" width="44" height="29">
+      <div class="brand-txt"><strong>Cabaña La Ribera</strong><span>2do Gran Remate San Rafael de Velasco</span></div>
+    </div>
+    <button id="sound" class="btn btn--sound" type="button" aria-pressed="false">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path class="ic-spk" d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path class="ic-wave" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path class="ic-mute" d="M16 9l5 6M21 9l-5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <span id="soundLabel">Activar sonido</span>
+    </button>
+  </header>
+
+  <main class="stage" id="stage">
+    <button class="edge edge--prev" id="edgePrev" type="button" aria-label="Página anterior"><span aria-hidden="true">‹</span></button>
+    <div class="book-wrap" id="bookWrap">
+      <div class="book" id="book" tabindex="-1" aria-label="Catálogo en formato libro"></div>
+    </div>
+    <button class="edge edge--next" id="edgeNext" type="button" aria-label="Página siguiente"><span aria-hidden="true">›</span></button>
+  </main>
+
+  <nav class="controls" aria-label="Navegación del catálogo">
+    <button class="btn btn--icon" id="btnPrev" type="button" aria-label="Página anterior">‹</button>
+    <label class="goto"><span>Ir a la página</span>
+      <select id="goto"></select>
+    </label>
+    <div class="progress" role="progressbar" aria-label="Progreso del catálogo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="bar"></i></div>
+    <output class="counter" id="counter" aria-live="polite"></output>
+    <button class="btn btn--icon" id="btnNext" type="button" aria-label="Página siguiente">›</button>
+  </nav>
+
+  <noscript><p style="color:#fff;padding:2rem">Este catálogo necesita JavaScript.</p></noscript>
+  <script src="data/catalog.js"></script>
+  <script src="js/seals.js"></script>
+  <script src="js/book.js"></script>
+</body>
+</html>
