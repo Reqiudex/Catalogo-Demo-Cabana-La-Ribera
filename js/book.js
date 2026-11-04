@@ -303,12 +303,20 @@
   function goTo(target, animate) {
     target = Math.max(0, Math.min(maxCur(), target));
     if (target === cur && vis.length) return;
+    clearPeek();
     var prev = cur, prevVis = vis.slice();
     var far = Math.abs(target - prev) > 3;
     cur = target;
     layout(prev, cur, animate !== false && !far);
     syncVisible(prevVis);
     updateUI();
+  }
+  function clearPeek() { $$('.peek-next, .peek-prev', book).forEach(function (e) { e.classList.remove('peek-next', 'peek-prev'); }); }
+  function peek(dir) {
+    clearPeek();
+    if (REDUCED.matches) return;
+    var el = mode === 'spread' ? (dir > 0 ? sheets[cur] : sheets[cur - 1]) : (dir > 0 ? leaves[cur] : null);
+    if (el && !el.classList.contains('turning')) el.classList.add(dir > 0 ? 'peek-next' : 'peek-prev');
   }
   function pageToPos(idx) { return mode === 'spread' ? Math.ceil(idx / 2) : idx; }
   function next() { goTo(cur + 1); }
@@ -325,6 +333,14 @@
   function bind() {
     $('#btnNext').addEventListener('click', next); $('#edgeNext').addEventListener('click', next);
     $('#btnPrev').addEventListener('click', prev); $('#edgePrev').addEventListener('click', prev);
+    /* esquina que se levanta al pasar el mouse por el borde */
+    [['#edgeNext', 1], ['#edgePrev', -1]].forEach(function (d) {
+      var el = $(d[0]);
+      el.addEventListener('mouseenter', function () { peek(d[1]); });
+      el.addEventListener('mouseleave', clearPeek);
+      el.addEventListener('focus', function () { peek(d[1]); });
+      el.addEventListener('blur', clearPeek);
+    });
     $('#sound').addEventListener('click', function () { setSound(!soundOn); });
     $('#goto').addEventListener('change', function (e) { goTo(pageToPos(+e.target.value)); e.target.blur(); });
     document.addEventListener('keydown', function (e) {

@@ -87,6 +87,25 @@ python3 -m http.server 8000
 2. **Settings → Pages → Build and deployment → Source: Deploy from a branch → `main` / `/ (root)`**.
 3. Tras un minuto el catálogo queda en `https://<usuario>.github.io/Catalogo-Demo-Cabana-La-Ribera/`.
 
+## Despliegue con Docker / Coolify
+
+El repo incluye `Dockerfile` (nginx, puerto interno **8080**) y `nginx.conf`.
+
+```bash
+docker build -t catalogo-la-ribera .
+docker run -p 8096:8080 catalogo-la-ribera
+```
+
+En Coolify: *New Resource → Public Repository* con este repo, rama `main`, *Build Pack: Dockerfile*, puerto expuesto `8080`.
+
+## Animaciones
+
+- Telón de entrada con el logo (una vez por sesión; clic o tecla para saltarlo).
+- Portada: marco que se dibuja, logo y título que enfocan, fecha con brillo dorado, video con zoom lento y polvo dorado flotante.
+- Cada página revela su contenido en cascada al quedar visible; el encabezado del lote se desplaza suavemente y el marco del video tiene un destello.
+- Al apuntar un borde con el mouse, la esquina de la hoja se levanta.
+- Todo se desactiva con `prefers-reduced-motion`.
+
 ## Créditos y contenido
 
 Textos, logos, imágenes y videos pertenecen a Cabaña La Ribera y sus patrocinadores; se usan aquí como demostración. Sitio original desarrollado por Ganadería 360.

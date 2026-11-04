@@ -141,7 +141,7 @@ html[data-mode="single"] .page { --pw: min(calc(100vw - 20px), calc((100dvh - va
 
 /* --- portada / contraportada --- */
 .page--cover, .page--back { background: var(--night); color: #fff; }
-.cover-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .92; }
+.cover-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .78; }
 .page--cover { background: var(--night) center/cover url('../assets/info1-image-mobile.webp'); }
 .page--back { background: radial-gradient(90% 60% at 50% 0%, rgba(255, 165, 0, .35), transparent 70%), var(--night); }
 .cover-veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(23, 13, 7, .78), rgba(23, 13, 7, .1) 34%, rgba(23, 13, 7, .18) 58%, rgba(23, 13, 7, .88)); }
@@ -209,7 +209,7 @@ html[data-mode="single"] .page { --pw: min(calc(100vw - 20px), calc((100dvh - va
 .vbox { position: relative; aspect-ratio: 16 / 9; background: #000; overflow: hidden; border-radius: .15em; }
 .vbox video, .vbox .v-frame, .vbox .v-poster { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: cover; display: block; }
 .vbox .v-poster { transform: scale(1.34); } /* recorta las barras del 4:3 de YouTube */
-.vbox.is-playing .v-poster { opacity: 0; transition: opacity .8s 3.4s; }
+.vbox.is-playing .v-poster { opacity: 0; transition: opacity .9s 5s; }
 .vbox .v-frame { transform: scale(1.16); }
 .v-shield { position: absolute; inset: 0; z-index: 3; touch-action: pan-y; }
 .v-yt { position: absolute; right: .5em; bottom: .5em; z-index: 4; font-size: .66em; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; text-decoration: none; background: rgba(0, 0, 0, .65); color: #fff; padding: .45em .8em; border-radius: 99px; border: 1px solid rgba(246, 220, 148, .6); opacity: 0; transition: opacity .2s; }
@@ -323,3 +323,152 @@ html[data-mode="single"] .w-body { padding: 0 2em; }
 html[data-mode="single"] .w-p { font-size: .92em; margin: .35em 0; line-height: 1.42; }
 html[data-mode="single"] .w-quote { font-size: 1.2em; margin: .4em 0; }
 html[data-mode="single"] .orn { margin: .4em 0; }
+
+/* =====================================================================
+   ANIMACIONES DE AMBIENTE Y ENTRADA (v2)
+   ===================================================================== */
+:root { --lux: cubic-bezier(.16, 1, .3, 1); }
+
+/* --- telón de entrada --- */
+.intro { position: fixed; inset: 0; z-index: 3000; display: grid; place-items: center; cursor: pointer; }
+.intro-curtain { position: absolute; top: 0; bottom: 0; width: 50.5%; background: radial-gradient(120% 80% at 100% 50%, #2d170b, var(--night) 70%); transition: transform 1.1s var(--lux); z-index: 0; }
+.intro-curtain--l { left: 0; }
+.intro-curtain--r { right: 0; transform-origin: right; background: radial-gradient(120% 80% at 0% 50%, #2d170b, var(--night) 70%); }
+.intro-curtain--l::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 1px; background: linear-gradient(180deg, transparent, rgba(246, 220, 148, .5), transparent); }
+.intro-in { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 18px; transition: opacity .6s, transform 1s var(--lux), filter .6s; }
+.intro-logo { width: min(300px, 62vw); height: auto; animation: introLogo 1.6s var(--lux) both; filter: drop-shadow(0 6px 30px rgba(255, 165, 0, .25)); }
+.intro-line { display: block; height: 1px; width: min(320px, 70vw); background: linear-gradient(90deg, transparent, var(--gold-hi), transparent); transform: scaleX(0); animation: introLine 1.2s .7s var(--lux) forwards; }
+.intro-txt { margin: 0; color: var(--gold-hi); font: 600 12px var(--f-sans); text-transform: uppercase; letter-spacing: .38em; text-align: center; padding: 0 16px; animation: introTxt 1.4s 1s var(--lux) both; }
+.intro-txt span { color: var(--bronze); }
+.intro--out { pointer-events: none; }
+.intro--out .intro-in { opacity: 0; transform: scale(1.06); filter: blur(6px); }
+.intro--out .intro-curtain--l { transform: translateX(-101%); transition-delay: .25s; }
+.intro--out .intro-curtain--r { transform: translateX(101%); transition-delay: .25s; }
+@keyframes introLogo { from { opacity: 0; transform: scale(.88); filter: blur(14px) drop-shadow(0 0 0 transparent); } }
+@keyframes introLine { to { transform: scaleX(1); } }
+@keyframes introTxt { from { opacity: 0; letter-spacing: .9em; } }
+
+/* mientras está el telón, nada corre por detrás */
+.intro-on .page, .intro-on .page * { animation-play-state: paused !important; }
+.intro-on .topbar, .intro-on .controls { opacity: 0; }
+.intro-on .book-wrap { opacity: 0; }
+
+/* --- entrada del escenario --- */
+body:not(.intro-on) .topbar { animation: dropIn .9s .35s var(--lux) both; }
+body:not(.intro-on) .controls { animation: riseIn .9s .5s var(--lux) both; }
+body:not(.intro-on) .book-wrap { animation: bookIn 1.4s .15s var(--lux) both; }
+@keyframes dropIn { from { opacity: 0; transform: translateY(-16px); } }
+@keyframes riseIn { from { opacity: 0; transform: translateY(16px); } }
+@keyframes bookIn { from { opacity: 0; transform: translateY(34px) scale(.95) rotateX(7deg); filter: blur(4px); } }
+
+/* --- luz ambiente que respira detrás del libro --- */
+body::before { content: ""; position: fixed; inset: -25%; pointer-events: none; z-index: 0; background: radial-gradient(35% 30% at 30% 40%, rgba(255, 165, 0, .10), transparent 70%), radial-gradient(30% 28% at 72% 62%, rgba(205, 127, 50, .12), transparent 70%); animation: ambient 22s ease-in-out infinite alternate; }
+@keyframes ambient { to { transform: translate3d(6%, -4%, 0) rotate(8deg); } }
+.topbar, .controls { position: relative; z-index: 2; }
+.stage { z-index: 1; }
+
+/* --- barra de progreso con brillo --- */
+.progress i { background: linear-gradient(90deg, var(--bronze), var(--amber), var(--gold-hi), var(--amber), var(--bronze)); background-size: 250% 100%; animation: barGlow 4s linear infinite; box-shadow: 0 0 10px rgba(255, 165, 0, .45); }
+@keyframes barGlow { to { background-position: -250% 0; } }
+
+/* --- esquina que se levanta al apuntar el borde --- */
+.sheet.peek-next { transform: rotateY(-13deg); transition-duration: .5s; }
+.sheet.flipped.peek-prev { transform: rotateY(-167deg); transition-duration: .5s; }
+.leaf.peek-next { transform: rotateY(-9deg); transition-duration: .45s; }
+
+/* --- polvo dorado --- */
+.dust { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; mix-blend-mode: screen; }
+.cover-body { z-index: 3; }
+.cover-frame { z-index: 3; }
+
+/* --- portada --- */
+.is-visible .cover-video { animation: kenburns 16s ease-in-out infinite alternate; }
+@keyframes kenburns { from { transform: scale(1.12) translate3d(-1.5%, 1%, 0); } to { transform: scale(1) translate3d(1%, -1%, 0); } }
+.page--cover.is-visible .cover-frame, .page--back.is-visible .cover-frame { animation: frameDraw 1.6s .2s var(--lux) both; }
+@keyframes frameDraw { from { clip-path: inset(50% 0 50% 0); opacity: 0; } to { clip-path: inset(0 0 0 0); opacity: 1; } }
+.is-visible .cover-logo { animation: blurIn 1.3s .35s var(--lux) both; }
+.page--cover.is-visible .cover-title { animation: blurIn 1.5s .65s var(--lux) both; }
+@keyframes blurIn { from { opacity: 0; transform: translateY(14px) scale(.96); filter: blur(10px); } }
+.cover-date span { background: linear-gradient(105deg, var(--bronze) 0%, var(--gold-hi) 30%, #fff8dc 45%, var(--gold-hi) 55%, var(--bronze) 85%); background-size: 260% 100%; -webkit-background-clip: text; background-clip: text; }
+.is-visible .cover-date span { animation: trackIn 1.4s 1s var(--lux) both, goldSweep 5s 2.4s ease-in-out infinite; }
+@keyframes trackIn { from { opacity: 0; letter-spacing: .7em; } }
+@keyframes goldSweep { 0% { background-position: 100% 0; } 60%, 100% { background-position: -160% 0; } }
+.is-visible .cover-kicker { animation: fadeUp 1s 1.35s var(--lux) both; }
+.is-visible .cover-hint { animation: fadeUp 1s 1.7s var(--lux) both; }
+.is-visible .back-lema { animation: fadeUp 1.1s .8s var(--lux) both; }
+.is-visible .back-date { animation: fadeUp 1.1s 1.05s var(--lux) both; }
+.is-visible .back-contact { animation: fadeUp 1.1s 1.25s var(--lux) both; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(.8em); } }
+
+/* --- revelado del contenido de cada página --- */
+.is-visible .w-scene img { animation: slowZoom 18s ease-out both; }
+@keyframes slowZoom { from { transform: scale(1.14); } }
+.is-visible .w-body > * { animation: fadeUp .9s var(--lux) both; }
+.is-visible .w-body > :nth-child(1) { animation-delay: .35s; }
+.is-visible .w-body > :nth-child(2) { animation-delay: .45s; }
+.is-visible .w-body > :nth-child(3) { animation-delay: .55s; }
+.is-visible .w-body > :nth-child(4) { animation-delay: .65s; }
+.is-visible .w-body > :nth-child(5) { animation-delay: .75s; }
+.is-visible .w-body > :nth-child(6) { animation-delay: .85s; }
+.is-visible .w-body > :nth-child(n+7) { animation-delay: .95s; }
+.is-visible .orn i { animation: lineGrow 1.1s .6s var(--lux) both; }
+.is-visible .orn i:last-child { transform-origin: left; }
+.orn i:first-child { transform-origin: right; }
+@keyframes lineGrow { from { transform: scaleX(0); } }
+.is-visible .orn b { animation: gemSpin 1.2s .5s var(--lux) both; }
+@keyframes gemSpin { from { transform: rotate(-135deg) scale(0); } }
+.is-visible .sec-title, .is-visible .eyebrow { animation: fadeUp .9s .25s var(--lux) both; }
+
+/* lote */
+.lot-head { background: none; }
+.lot-head::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(60, 22, 4, .1), rgba(60, 22, 4, .55)), url('../assets/info1-image-mobile.webp') center 35%/cover; }
+.is-visible .lot-head::before { animation: headDrift 20s ease-in-out infinite alternate; }
+@keyframes headDrift { from { transform: scale(1.18) translateX(-3%); } to { transform: scale(1.05) translateX(3%); } }
+.lot-head { isolation: isolate; }
+.is-visible .lot-head::after { animation: lineGrow 1.2s .3s var(--lux) both; }
+.is-visible .lot-kicker { animation: slideR .9s .3s var(--lux) both; }
+.is-visible .lot-num { animation: numIn 1.1s .38s var(--lux) both; }
+.is-visible .lot-brand { animation: fadeIn 1s .7s ease both; }
+@keyframes slideR { from { opacity: 0; transform: translateX(-1em); letter-spacing: .9em; } }
+@keyframes numIn { from { opacity: 0; transform: translateY(.35em) scale(.92); filter: blur(6px); } }
+@keyframes fadeIn { from { opacity: 0; } }
+.is-visible .vframe { animation: frameIn 1s .2s var(--lux) both; }
+@keyframes frameIn { from { opacity: 0; transform: translateY(1em) scale(.97); } }
+.vframe::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 6; background: linear-gradient(115deg, transparent 35%, rgba(255, 248, 220, .55) 48%, transparent 60%); background-size: 260% 100%; background-position: 130% 0; mix-blend-mode: soft-light; }
+.is-visible .vframe::after { animation: frameGlint 6s 1.4s ease-in-out infinite; }
+@keyframes frameGlint { 0% { background-position: 130% 0; } 35%, 100% { background-position: -130% 0; } }
+.is-visible .spec > div { animation: fadeUp .8s var(--lux) both; }
+.is-visible .spec > div:nth-child(1) { animation-delay: 1.05s; }
+.is-visible .spec > div:nth-child(2) { animation-delay: 1.15s; }
+.is-visible .spec > div:nth-child(3) { animation-delay: 1.25s; }
+.is-visible .spec > div:nth-child(4) { animation-delay: 1.35s; }
+.is-visible .spec > div:nth-child(n+5) { animation-delay: 1.45s; }
+.is-visible .cta:not(.cta--big) { animation: ctaIn .9s 1.5s var(--lux) both, ctaGlow 3.6s 2.6s ease-in-out infinite; }
+@keyframes ctaIn { from { opacity: 0; transform: translate(-50%, .8em); } }
+@keyframes ctaGlow { 0%, 100% { box-shadow: 0 .35em 1em rgba(100, 45, 5, .35); } 50% { box-shadow: 0 .35em 1.6em rgba(255, 165, 0, .55), 0 0 0 .25em rgba(246, 220, 148, .25); } }
+.is-visible .cta--big { animation: fadeUp .9s .9s var(--lux) both, ctaGlow 3.6s 2s ease-in-out infinite; }
+
+/* agenda: la línea de tiempo se dibuja */
+.timeline::before { transform-origin: top; }
+.is-visible .timeline::before { animation: lineDown 1.4s .3s var(--lux) both; }
+@keyframes lineDown { from { transform: scaleY(0); } }
+.is-visible .tl-ic { animation: gemPop .7s var(--lux) both; animation-delay: calc(.55s + var(--i, 0) * .18s); }
+@keyframes gemPop { from { transform: scale(0) rotate(-90deg); } }
+
+/* patrocinadores y contacto */
+.is-visible .logos figure { animation: logoIn .8s var(--lux) both; }
+.is-visible .logos figure:nth-child(1) { animation-delay: .45s; }
+.is-visible .logos figure:nth-child(2) { animation-delay: .6s; }
+.is-visible .logos figure:nth-child(3) { animation-delay: .75s; }
+.is-visible .logos figure:nth-child(4) { animation-delay: .9s; }
+.logos--1 figure { animation-delay: .4s !important; }
+@keyframes logoIn { from { opacity: 0; transform: translateY(.8em) scale(.92); filter: grayscale(1); } }
+.logos--4 figure { transition: transform .35s var(--lux), box-shadow .35s; }
+.logos--4 figure:hover { transform: translateY(-3px); box-shadow: 0 .6em 1.4em rgba(120, 60, 10, .2); }
+.is-visible .thanks { animation: fadeUp 1s 1.1s var(--lux) both; }
+.is-visible .ct-hero img { animation: slowZoom 16s ease-out both; }
+.is-visible .ct-list li { animation: fadeUp .8s var(--lux) both; }
+.is-visible .ct-list li:nth-child(1) { animation-delay: .4s; }
+.is-visible .ct-list li:nth-child(2) { animation-delay: .52s; }
+.is-visible .ct-list li:nth-child(3) { animation-delay: .64s; }
+.is-visible .social a { animation: fadeUp .8s 1.1s var(--lux) both; }

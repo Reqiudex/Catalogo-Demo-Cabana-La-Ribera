@@ -12,7 +12,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800;900&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500;1,600&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="intro-on">
+  <div class="intro" id="intro" aria-hidden="true">
+    <div class="intro-in">
+      <img class="intro-logo" src="assets/logo-lr.webp" alt="">
+      <i class="intro-line"></i>
+      <p class="intro-txt">2do Gran Remate <span>·</span> San Rafael de Velasco</p>
+    </div>
+    <span class="intro-curtain intro-curtain--l"></span><span class="intro-curtain intro-curtain--r"></span>
+  </div>
   <a class="skip" href="#book">Saltar al catálogo</a>
 
   <header class="topbar">
@@ -48,5 +56,6 @@
   <script src="data/catalog.js"></script>
   <script src="js/seals.js"></script>
   <script src="js/book.js"></script>
+  <script src="js/fx.js"></script>
 </body>
 </html>
