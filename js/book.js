@@ -88,7 +88,7 @@
 
   function pLot(l, n) {
     var nombre = l.name ? l.name + (l.categoria ? ' · ' + l.categoria : '') : null;
-    var rows = [['Ejemplar', nombre, false, 'wide'], ['Registro', l.registro, true, 'c2'], ['Nacimiento', l.nacimiento, true, 'c2'], ['Precio base', l.precio, false, 'c2'], ['Padre', l.padre, true, 'c3'], ['Madre', l.madre, true, 'c3'], ['Datos genéticos', l.geneticos, false, 'wide']]
+    var rows = [['Ejemplar', nombre, false, 'wide'], ['Registro', l.registro, true, 'c3'], ['Nacimiento', l.nacimiento, true, 'c3'], ['Padre', l.padre, true, 'c3'], ['Madre', l.madre, true, 'c3'], ['Datos genéticos', l.geneticos, false, 'wide']]
       .filter(function (r) { return r[1] || r[2]; });
     var seals = (l.seals || []).map(function (s, i) {
       return '<span class="seal-slot" style="--d:' + (0.35 + i * 0.28).toFixed(2) + 's;--rot:' + ((i % 2 ? 6 : -7) + (i % 3) * 1.5) + 'deg">' + window.LRSeals.render(s, l) + '</span>';

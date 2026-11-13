@@ -8,7 +8,7 @@ Página estática: HTML + CSS + JavaScript sin frameworks. Se abre con `index.ht
 - **44 páginas**: portada, bienvenida, agenda, 38 lotes, patrocinadores y auspiciadores, contacto y contraportada.
 - **Videos** siempre silenciados, en bucle y solo cuando su página está visible; se descargan de forma perezosa y se detienen al salir.
 - **Música de fondo** elegante generada en el navegador (`js/music.js`, Web Audio): empieza con el primer toque y se apaga con el botón **Silenciar música**. No descarga archivos ni tiene derechos de autor.
-- **Datos de referencia**: nombre, nacimiento, padre, madre, DEP, precio base y descripción son de ejemplo y llevan el aviso `avisoDatos`; reemplázalos en `data/catalog.js`.
+- **Datos de referencia**: nombre, nacimiento, padre, madre, DEP y descripción (sin precios: es un remate) son de ejemplo y llevan el aviso `avisoDatos`; reemplázalos en `data/catalog.js`.
 - **Sellos animados** en SVG, diseñados para La Ribera (`js/seals.js`): `premium`, `nelore`, `registro`, `internacional`, `combo`, `top`, `genotipado`, `garantia`.
 - Al cambiar CSS, JS o `data/catalog.js`, sube el `?v=` en `index.html` (Cloudflare guarda esos archivos en caché).
 - Respeta `prefers-reduced-motion` y tiene foco visible para teclado.
@@ -44,7 +44,6 @@ Todo sale de `data/catalog.js` (no hay que tocar el código). Abre el archivo y 
   nacimiento: "12/03/2024",
   padre: "…", madre: "…",
   geneticos: "DEP … / ABVol …", // opcional
-  precio: "Base Bs. …",         // opcional
   video: "https://youtu.be/ID", // YouTube o ruta local (ver abajo)
   poster: "assets/poster-lote-05.jpg",
   seals: [ {t:"premium"}, {t:"nelore"}, {t:"registro"} ],
