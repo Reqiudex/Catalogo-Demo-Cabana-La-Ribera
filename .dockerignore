@@ -1,4 +1,5 @@
 .git
 tools
 data/raw
+data/assets-map.json
 *.md

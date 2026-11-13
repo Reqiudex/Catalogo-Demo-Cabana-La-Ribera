@@ -93,7 +93,7 @@ El repo incluye `Dockerfile` (nginx, puerto interno **8080**) y `nginx.conf`.
 
 ```bash
 docker build -t catalogo-la-ribera .
-docker run -p 8096:8080 catalogo-la-ribera
+docker run -p 8097:8080 catalogo-la-ribera
 ```
 
 En Coolify: *New Resource → Public Repository* con este repo, rama `main`, *Build Pack: Dockerfile*, puerto expuesto `8080`.
