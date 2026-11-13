@@ -26,6 +26,15 @@
     return '<svg class="seal seal--' + type + '" viewBox="0 0 120 120" role="img" aria-label="' + esc(label) + '" focusable="false"><title>' + esc(label) + '</title>' + body + '</svg>';
   }
 
+  /* Texto en anillo legible: arco superior y arco inferior (este último trazado al revés para que no quede de cabeza) */
+  function ring(i, r, size, fill, top, bottom) {
+    var rb = r + size * 0.72;
+    return '<path id="pt' + i + '" d="M' + (60 - r) + ',60 a' + r + ',' + r + ' 0 0,1 ' + 2 * r + ',0" fill="none"/>' +
+      '<path id="pb' + i + '" d="M' + (60 - rb) + ',60 a' + rb + ',' + rb + ' 0 0,0 ' + 2 * rb + ',0" fill="none"/>' +
+      '<text font-family="Cinzel,serif" font-size="' + size + '" font-weight="700" fill="' + fill + '" letter-spacing="1.2" text-anchor="middle"><textPath href="#pt' + i + '" startOffset="50%">' + top + '</textPath></text>' +
+      '<text font-family="Cinzel,serif" font-size="' + size + '" font-weight="700" fill="' + fill + '" letter-spacing="1.2" text-anchor="middle"><textPath href="#pb' + i + '" startOffset="50%">' + bottom + '</textPath></text>';
+  }
+
   var T = {};
 
   /* Medallón festoneado con anillo de texto */
@@ -37,7 +46,7 @@
       '<circle cx="60" cy="60" r="50" fill="#2e170a"/>' +
       '<circle cx="60" cy="60" r="47" fill="none" stroke="url(#g' + i + ')" stroke-width="1.4"/>' +
       '<circle cx="60" cy="60" r="29" fill="none" stroke="url(#g' + i + ')" stroke-width="1"/>' +
-      '<text font-family="Cinzel,serif" font-size="7.4" font-weight="700" fill="#f4d98c"><textPath href="#p' + i + '" textLength="236" lengthAdjust="spacing">SELECCIÓN · LA RIBERA · SELECCIÓN · LA RIBERA ·</textPath></text>' +
+      ring(i, 37.5, 7.4, '#f4d98c', 'SELECCIÓN', '★ LA RIBERA ★') +
       '<polygon class="s-pop" points="' + star(5, 8, 3.3, 60, 43, -Math.PI / 2) + '" fill="url(#g' + i + ')"/>' +
       '<text x="60" y="66" text-anchor="middle" font-family="Cinzel,serif" font-weight="800" font-size="' + (txt.length > 7 ? 10 : 12) + '" fill="url(#g' + i + ')">' + txt + '</text>' +
       '<path d="M44 76 H76" stroke="url(#g' + i + ')" stroke-width="1"/><text x="60" y="86" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="600" font-size="5.2" letter-spacing="1.4" fill="#f4d98c">NELORE</text>' +
@@ -83,7 +92,7 @@
       '<radialGradient id="r' + i + '" cx=".35" cy=".3"><stop offset="0" stop-color="#3f8f4f"/><stop offset="1" stop-color="#14502a"/></radialGradient></defs>' +
       '<circle cx="60" cy="60" r="58" fill="url(#g' + i + ')"/><circle cx="60" cy="60" r="54" fill="#12361f"/>' +
       '<circle cx="60" cy="60" r="51" fill="none" stroke="#f4d98c" stroke-width=".8"/>' +
-      '<text font-family="Cinzel,serif" font-size="8" font-weight="700" fill="#f4d98c"><textPath href="#p' + i + '" textLength="246" lengthAdjust="spacing">GENÉTICA BRASILEÑA · GENÉTICA BRASILEÑA ·</textPath></text>' +
+      ring(i, 39, 7.6, '#f4d98c', 'GENÉTICA', '★ BRASILEÑA ★') +
       '<circle cx="60" cy="60" r="27" fill="url(#r' + i + ')"/>' +
       '<g clip-path="url(#c' + i + ')" fill="none" stroke="#f4d98c" stroke-width="1">' +
       '<ellipse class="s-mer" cx="60" cy="60" rx="27" ry="27" style="transform-origin:60px 60px"/><ellipse class="s-mer s-mer2" cx="60" cy="60" rx="27" ry="27" style="transform-origin:60px 60px"/>' +

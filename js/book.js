@@ -87,7 +87,8 @@
   }
 
   function pLot(l, n) {
-    var rows = [['Nombre', l.name, false], ['Registro', l.registro, true], ['Nacimiento', l.nacimiento, true], ['Padre', l.padre, true], ['Madre', l.madre, true], ['Datos genéticos', l.geneticos, false], ['Base', l.precio, false]]
+    var nombre = l.name ? l.name + (l.categoria ? ' · ' + l.categoria : '') : null;
+    var rows = [['Ejemplar', nombre, false, 'wide'], ['Registro', l.registro, true, 'c2'], ['Nacimiento', l.nacimiento, true, 'c2'], ['Precio base', l.precio, false, 'c2'], ['Padre', l.padre, true, 'c3'], ['Madre', l.madre, true, 'c3'], ['Datos genéticos', l.geneticos, false, 'wide']]
       .filter(function (r) { return r[1] || r[2]; });
     var seals = (l.seals || []).map(function (s, i) {
       return '<span class="seal-slot" style="--d:' + (0.35 + i * 0.28).toFixed(2) + 's;--rot:' + ((i % 2 ? 6 : -7) + (i % 3) * 1.5) + 'deg">' + window.LRSeals.render(s, l) + '</span>';
@@ -96,9 +97,10 @@
       '<section class="page page--paper page--lot" data-lot="' + l.n + '">' + paperDeco() +
       '<header class="lot-head"><span class="lot-kicker">Lote</span><span class="lot-num">' + pad(l.n) + '</span>' +
       '<span class="lot-brand"><i></i>' + esc(C.evento.raza) + '</span></header>' +
-      '<div class="vframe">' + mediaMarkup(l) + '</div>' +
-      '<div class="seals">' + seals + '</div>' +
-      '<dl class="spec">' + rows.map(function (r) { return '<div' + (r[1] ? '' : ' class="is-empty"') + '><dt>' + r[0] + '</dt><dd>' + (r[1] ? esc(r[1]) : 'Por confirmar') + '</dd></div>'; }).join('') + '</dl>' +
+      '<div class="vframe">' + mediaMarkup(l) + '<div class="seals">' + seals + '</div></div>' +
+      '<dl class="spec">' + rows.map(function (r) { var c = (r[1] ? '' : 'is-empty') + (r[3] ? ' ' + r[3] : ''); return '<div' + (c.trim() ? ' class="' + c.trim() + '"' : '') + '><dt>' + r[0] + '</dt><dd>' + (r[1] ? esc(r[1]) : 'Por confirmar') + '</dd></div>'; }).join('') + '</dl>' +
+      (l.desc ? '<p class="lot-desc">' + esc(l.desc) + '</p>' : '') +
+      (C.avisoDatos ? '<p class="lot-note">* ' + esc(C.avisoDatos) + '</p>' : '') +
       '<a class="cta" href="' + wa('Hola, quiero consultar por el Lote ' + l.n + ' del 2do Gran Remate San Rafael de Velasco.') + '" target="_blank" rel="noopener">Consultar por el lote ' + l.n + '</a>' +
       folio(n) + '</section>' };
   }
@@ -175,14 +177,14 @@
       f.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&mute=1&loop=1&playlist=' + id + '&playsinline=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&enablejsapi=1';
       f.addEventListener('load', function () {
         box.classList.add('is-playing');
-        if (soundOn) { ytSend(f, 'unMute'); ytSend(f, 'setVolume'); }
+        ytSend(f, 'mute');
         ytSend(f, 'playVideo');
       });
       box.insertBefore(f, box.firstChild);
     });
     $$('video[data-mp4]', page).forEach(function (v) {
       if (!v.getAttribute('src')) v.src = v.getAttribute('data-src');
-      v.muted = !soundOn;
+      v.muted = true;
       var p = v.play();
       if (p && p.catch) p.catch(function () { /* autoplay bloqueado: queda el póster */ });
     });
@@ -194,13 +196,15 @@
     });
     $$('video[data-mp4]', page).forEach(function (v) { v.pause(); });
   }
-  function setSound(on) {
+  /* El botón controla solo la música de fondo (js/music.js); los videos siempre van en silencio. */
+  function setSound(on, porUsuario) {
+    if (on && !(window.LRMusic && window.LRMusic.play())) on = false;
+    if (!on && window.LRMusic) window.LRMusic.pause();
     soundOn = on;
+    if (porUsuario) { try { sessionStorage.setItem('lr-music', on ? '1' : '0'); } catch (e) { /* ignorar */ } }
     var b = $('#sound');
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
-    $('#soundLabel').textContent = on ? 'Silenciar' : 'Activar sonido';
-    $$('iframe.v-frame').forEach(function (f) { ytSend(f, on ? 'unMute' : 'mute'); if (on) ytSend(f, 'playVideo'); });
-    $$('video[data-mp4]').forEach(function (v) { v.muted = !on; });
+    $('#soundLabel').textContent = on ? 'Silenciar música' : 'Activar música';
   }
 
   /* ---------- libro ---------- */
@@ -341,7 +345,16 @@
       el.addEventListener('focus', function () { peek(d[1]); });
       el.addEventListener('blur', clearPeek);
     });
-    $('#sound').addEventListener('click', function () { setSound(!soundOn); });
+    $('#sound').addEventListener('click', function (e) { e.stopPropagation(); setSound(!soundOn, true); });
+    /* La música empieza sola con el primer toque, clic o tecla (los navegadores no permiten sonido antes),
+       salvo que la persona la haya silenciado en esta visita. */
+    var arrancar = function (e) {
+      ['pointerdown', 'keydown', 'touchstart'].forEach(function (ev) { document.removeEventListener(ev, arrancar, true); });
+      if (e && e.target && e.target.closest && e.target.closest('#sound')) return; // el propio botón decide
+      var pref = null; try { pref = sessionStorage.getItem('lr-music'); } catch (e) { /* ignorar */ }
+      if (pref !== '0' && !soundOn) setSound(true);
+    };
+    ['pointerdown', 'keydown', 'touchstart'].forEach(function (ev) { document.addEventListener(ev, arrancar, true); });
     $('#goto').addEventListener('change', function (e) { goTo(pageToPos(+e.target.value)); e.target.blur(); });
     document.addEventListener('keydown', function (e) {
       var t = e.target && e.target.tagName;

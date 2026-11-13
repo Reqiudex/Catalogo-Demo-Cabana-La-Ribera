@@ -480,3 +480,22 @@ body::before { content: ""; position: fixed; inset: -25%; pointer-events: none; 
   .brand-txt strong { font-size: 13px; }
 }
 .noscript { color: #fff; padding: 2rem; }
+/* Ficha del lote compacta: video panorámico con sellos encima, datos en grilla, descripción y aviso */
+.page--lot .lot-head { height: 5.4em; }
+.page--lot .vframe { margin-top: .9em; }
+.page--lot .vbox { aspect-ratio: 2 / 1; }
+.page--lot .vbox .v-poster { transform: scale(1.5); }
+.page--lot .vbox .v-frame { transform: scale(1.3); }
+.vframe .seals { position: absolute; right: .4em; bottom: -1.9em; margin: 0; min-height: 0; gap: 0; z-index: 7; justify-content: flex-end; }
+.vframe .seal { width: 4.3em; height: 4.3em; }
+.vframe .seal--combo { width: 5em; }
+.page--lot .spec { margin: .55em 2.1em 0; grid-template-columns: repeat(6, 1fr); gap: .3em .7em; font-size: .86em; padding-right: 0; }
+.page--lot .spec > div:first-child { padding-right: 9em; }
+.spec .wide { grid-column: span 6; }
+.spec .c2 { grid-column: span 2; }
+.spec .c3 { grid-column: span 3; }
+.page--lot .spec dd { font-size: .98em; line-height: 1.25; }
+.spec .wide:last-child dd { font-size: .86em; font-weight: 500; }
+.lot-desc { position: relative; z-index: 2; margin: .55em 2.4em 0; font-family: var(--f-serif); font-style: italic; font-size: .92em; line-height: 1.28; color: var(--ink-soft); text-align: center; }
+.lot-note { position: relative; z-index: 2; margin: .35em 2.4em 0; font-size: .56em; line-height: 1.25; color: var(--ember); opacity: .85; text-align: center; letter-spacing: .02em; }
+.page--lot .cta { bottom: 2.6em; font-size: .72em; padding: .8em 1.5em; }
