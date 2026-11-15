@@ -7,7 +7,7 @@
 - Patrocinador (1: Frigorífico BFC) y auspiciadores (4: Agromel, Paceña, Calcimin, Lazo Rural).
 - **38 lotes**: número y video de YouTube de cada uno, más el título del video (de ahí salen los códigos de 7 lotes y las etiquetas «AB»).
 - 18 imágenes (logo, título, fondos, escena, patrocinadores) y 38 miniaturas de los videos, en `assets/`.
-- Video de portada (`videos/banner.mp4`, 12,9 MB, el hero del sitio).
+- Video de portada (`videos/banner.mp4`, 12,9 MB, el hero del sitio). Luego se recodificó sin audio en `banner-720.mp4` (2,5 MB) y `banner-480.mp4` (1,1 MB); el original se retiró del repo.
 - Colores del sitio: bronce `#cd7f32`, ámbar `#ffa500`, blanco; tipografía Montserrat.
 
 ## No se pudo extraer (no existe en el sitio)

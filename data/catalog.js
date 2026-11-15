@@ -61,7 +61,8 @@ window.CATALOG = {
     cinta: "assets/info1-cinta-desktop.webp"
   },
   avisoDatos: "Datos de referencia: no corresponden a cada ejemplar. Confirmar con la cabaña antes del remate.",
-  videoPortada: "videos/banner.mp4",
+  videoPortada: "videos/banner-720.mp4",        // escritorio (2,5 MB)
+  videoPortadaLigero: "videos/banner-480.mp4",  // móvil y modo ligero (1,1 MB)
   tema: { bronce: "#cd7f32", ambar: "#ffa500", blanco: "#ffffff", tipografiaSitio: "Montserrat" },
   /* Tipos de sello disponibles (js/seals.js):
      premium, nelore, registro, internacional, combo, top, genotipado, garantia

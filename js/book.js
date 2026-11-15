@@ -11,6 +11,8 @@
   var DUR = 900;
   var IMG = C.imagenes;
   var FILE_MODE = location.protocol === 'file:';
+  var PERF = window.LRPerf || { lite: false };
+  function lite() { return !!PERF.lite; }
 
   /* ---------- utilidades ---------- */
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
@@ -35,7 +37,7 @@
     var e = C.evento;
     return { label: 'Portada', html:
       '<section class="page page--cover">' +
-      '<video class="cover-video" data-mp4 data-src="' + esc(C.videoPortada) + '" poster="' + esc(IMG.atardecerMovil) + '" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>' +
+      '<video class="cover-video" data-mp4 data-src="' + esc(C.videoPortada) + '" data-src-lite="' + esc(C.videoPortadaLigero || C.videoPortada) + '" poster="' + esc(IMG.atardecerMovil) + '" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>' +
       '<div class="cover-veil"></div><div class="cover-frame"></div>' +
       '<div class="cover-body">' +
       '<img class="cover-logo" src="' + esc(IMG.logo) + '" alt="' + esc(e.marca) + ' — ' + esc(e.raza) + '">' +
@@ -164,35 +166,51 @@
   function ytSend(frame, func) {
     try { frame.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: [] }), '*'); } catch (e) { /* ignorar */ }
   }
-  function mediaOn(page) {
+  /* Inserta el reproductor de YouTube. En modo ligero solo al tocar el video (cada reproductor
+     pesa ~1 MB de JavaScript y frena mucho los equipos modestos); en modo normal, cuando la hoja
+     termina de girar, para no competir con la animación del pase de página. */
+  var ytTimers = [];
+  function mediaOn(page, delay) {
     $$('[data-yt]', page).forEach(function (box) {
       if (box.querySelector('iframe') || FILE_MODE) { if (FILE_MODE) box.classList.add('no-embed'); return; }
-      var id = box.getAttribute('data-yt');
-      var f = document.createElement('iframe');
-      f.className = 'v-frame';
-      f.title = 'Video del lote';
-      f.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
-      f.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-      f.setAttribute('tabindex', '-1');
-      f.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&mute=1&loop=1&playlist=' + id + '&playsinline=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&enablejsapi=1';
-      f.addEventListener('load', function () {
-        box.classList.add('is-playing');
-        ytSend(f, 'mute');
-        ytSend(f, 'playVideo');
-      });
-      box.insertBefore(f, box.firstChild);
+      if (lite() && !box.classList.contains('wants-play')) { box.classList.add('tap-to-play'); return; }
+      if (delay) {
+        ytTimers.push(setTimeout(function () { if (page.classList.contains('is-visible')) embedYT(box); }, delay));
+        return;
+      }
+      embedYT(box);
     });
     $$('video[data-mp4]', page).forEach(function (v) {
-      if (!v.getAttribute('src')) v.src = v.getAttribute('data-src');
+      if (lite() && v.classList.contains('cover-video')) return;   // modo ligero: portada fija (póster)
+      if (!v.getAttribute('src')) v.src = (lite() || mode === 'single') && v.getAttribute('data-src-lite') ? v.getAttribute('data-src-lite') : v.getAttribute('data-src');
       v.muted = true;
       var p = v.play();
       if (p && p.catch) p.catch(function () { /* autoplay bloqueado: queda el póster */ });
     });
   }
+  function embedYT(box) {
+    if (box.querySelector('iframe')) return;
+    box.classList.remove('tap-to-play');
+    var id = box.getAttribute('data-yt');
+    var f = document.createElement('iframe');
+    f.className = 'v-frame';
+    f.title = 'Video del lote';
+    f.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
+    f.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+    f.setAttribute('tabindex', '-1');
+    f.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&mute=1&loop=1&playlist=' + id + '&playsinline=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&enablejsapi=1';
+    f.addEventListener('load', function () {
+      box.classList.add('is-playing');
+      ytSend(f, 'mute');
+      ytSend(f, 'playVideo');
+    });
+    box.insertBefore(f, box.firstChild);
+  }
   function mediaOff(page) {
     $$('[data-yt]', page).forEach(function (box) {
       var f = box.querySelector('iframe');
       if (f) { f.remove(); box.classList.remove('is-playing'); }
+      box.classList.remove('wants-play');
     });
     $$('video[data-mp4]', page).forEach(function (v) { v.pause(); });
   }
@@ -260,9 +278,14 @@
         s.style.zIndex = moving ? 500 : (flipped ? j + 1 : S - j);
         s.style.transitionDelay = moving ? Math.min((flipped ? j - lo : hi - 1 - j) * 55, 330) + 'ms' : '0ms';
         s.style.transitionDuration = animate && !REDUCED.matches ? '' : '0ms';
+        /* solo se pintan las hojas que pueden verse: las que giran y las de arriba de cada pila */
+        s.hidden = animate ? (j < lo - 1 || j > hi + 1) : (j < next - 2 || j > next + 1);
       });
       if (animate) setTimeout(function () {
-        sheets.forEach(function (s, j) { s.classList.remove('turning'); s.style.zIndex = j < cur ? j + 1 : S - j; });
+        sheets.forEach(function (s, j) {
+          s.classList.remove('turning'); s.style.zIndex = j < cur ? j + 1 : S - j;
+          if (!s.classList.contains('turning')) s.hidden = j < cur - 2 || j > cur + 1;
+        });
       }, REDUCED.matches ? 0 : DUR + 400);
     } else {
       leaves.forEach(function (l, i) {
@@ -281,7 +304,7 @@
     var nowVis = visibleIdx(cur);
     pageEls.forEach(function (el, i) {
       var on = nowVis.indexOf(i) > -1;
-      if (on && !el.classList.contains('is-visible')) { el.classList.add('is-visible'); mediaOn(el); }
+      if (on && !el.classList.contains('is-visible')) { el.classList.add('is-visible'); mediaOn(el, prevVis && !REDUCED.matches ? DUR : 0); }
     });
     var off = (prevVis || []).filter(function (i) { return nowVis.indexOf(i) < 0; });
     var doOff = function () { off.forEach(function (i) { if (visibleIdx(cur).indexOf(i) < 0) { pageEls[i].classList.remove('is-visible'); mediaOff(pageEls[i]); } }); };
@@ -370,7 +393,21 @@
     window.addEventListener('pointerup', function (e) {
       if (sx === null) return;
       var dx = e.clientX - sx, dy = e.clientY - sy; sx = null;
-      if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4 && Date.now() - st < 900) { dx < 0 ? next() : prev(); }
+      if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4 && Date.now() - st < 900) { lastSwipe = Date.now(); dx < 0 ? next() : prev(); }
+    });
+    /* modo ligero: el video del lote se carga al tocarlo */
+    var lastSwipe = 0;
+    book.addEventListener('click', function (e) {
+      var box = e.target.closest && e.target.closest('.vbox.tap-to-play');
+      if (!box || Date.now() - lastSwipe < 400 || e.target.closest('.v-yt')) return;
+      box.classList.add('wants-play');
+      embedYT(box);
+    });
+    /* si fx.js detecta que el equipo va lento, pasar a modo ligero sin recargar */
+    document.addEventListener('lr:lite', function () {
+      ytTimers.forEach(clearTimeout); ytTimers = [];
+      $$('.cover-video', book).forEach(function (v) { v.pause(); });
+      $$('.page.is-visible [data-yt]', book).forEach(function (box) { if (!box.querySelector('iframe')) box.classList.add('tap-to-play'); });
     });
     var rz;
     window.addEventListener('resize', function () {

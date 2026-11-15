@@ -377,7 +377,7 @@ body::before { content: ""; position: fixed; inset: -25%; pointer-events: none; 
 .leaf.peek-next { transform: rotateY(-9deg); transition-duration: .45s; }
 
 /* --- polvo dorado --- */
-.dust { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; mix-blend-mode: screen; }
+.dust { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
 .cover-body { z-index: 3; }
 .cover-frame { z-index: 3; }
 
@@ -499,3 +499,32 @@ body::before { content: ""; position: fixed; inset: -25%; pointer-events: none; 
 .lot-desc { position: relative; z-index: 2; margin: .55em 2.4em 0; font-family: var(--f-serif); font-style: italic; font-size: .92em; line-height: 1.28; color: var(--ink-soft); text-align: center; }
 .lot-note { position: relative; z-index: 2; margin: .35em 2.4em 0; font-size: .56em; line-height: 1.25; color: var(--ember); opacity: .85; text-align: center; letter-spacing: .02em; }
 .page--lot .cta { bottom: 2.6em; font-size: .72em; padding: .8em 1.5em; }
+
+/* =====================================================================
+   MODO LIGERO (html.lite, lo activa js/perf.js o js/fx.js)
+   Para equipos modestos: se conservan las entradas, se quitan las animaciones
+   que repintan en cada fotograma, los desenfoques y las sombras filtradas.
+   ===================================================================== */
+html.lite body::before { animation: none; }
+html.lite .progress i { animation: none; box-shadow: none; }
+html.lite .is-visible .cover-video { animation: none; }
+html.lite .is-visible .cover-date span { animation: trackIn 1.4s 1s var(--lux) both; }
+html.lite .is-visible .s-shine, html.lite .is-visible .s-pop, html.lite .is-visible .s-mer,
+html.lite .is-visible .s-pulse, html.lite .is-visible .s-rays, html.lite .is-visible .hint-hand,
+html.lite .is-visible .lot-head::before, html.lite .is-visible .vframe::after { animation: none; }
+html.lite .is-visible .cta:not(.cta--big) { animation: ctaIn .9s 1.5s var(--lux) both; }
+html.lite .is-visible .cta--big { animation: fadeUp .9s .9s var(--lux) both; }
+/* entradas sin desenfoque */
+html.lite .is-visible .cover-logo, html.lite .page--cover.is-visible .cover-title,
+html.lite .is-visible .lot-num, html.lite .intro-logo { animation-name: fadeUp; }
+html.lite body:not(.intro-on) .book-wrap { animation: riseIn .6s var(--ease) both; }
+html.lite .intro--out .intro-in { filter: none; }
+/* sombras con filtro: se recalculan en cada cuadro */
+html.lite .seal, html.lite .cover-logo, html.lite .cover-title, html.lite .intro-logo, html.lite .book::before { filter: none; }
+/* pase de página más ágil */
+html.lite .leaf, html.lite .sheet { transition-duration: .6s; }
+
+/* video del lote a demanda (modo ligero): botón de reproducir en vez del indicador de carga */
+.is-visible .vbox.tap-to-play[data-yt]:not(.is-playing)::after { opacity: 0; animation: none; }
+.vbox.tap-to-play::before { content: ""; position: absolute; left: 50%; top: 50%; width: 3.6em; height: 3.6em; margin: -1.8em; z-index: 2; pointer-events: none; border-radius: 50%; background: rgba(23, 13, 7, .62) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 6.5v11l9-5.5z' fill='%23f6dc94'/%3E%3C/svg%3E") center / 55% no-repeat; border: 2px solid var(--gold-hi); box-shadow: 0 .3em 1em rgba(0, 0, 0, .5); }
+.vbox.tap-to-play .v-shield { cursor: pointer; }

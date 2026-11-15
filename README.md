@@ -23,7 +23,7 @@ js/seals.js         sellos SVG animados
 data/catalog.js     TODO el contenido editable
 data/raw/           respuestas originales de la API del sitio y HTML renderizado
 assets/             logos, fondos, patrocinadores y miniaturas de los videos
-videos/             video de portada (banner.mp4) y, si los agregas, lote-01.mp4 ...
+videos/             video de portada (banner-720.mp4 escritorio, banner-480.mp4 móvil) y, si los agregas, lote-01.mp4 ...
 tools/extraer.js    script Playwright usado para la extracción
 ```
 
