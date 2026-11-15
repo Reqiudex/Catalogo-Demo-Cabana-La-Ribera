@@ -10,11 +10,13 @@
   var forced = null;
   try {
     var m = /[?&]lite=(1|0|auto)\b/.exec(location.search);
-    if (m) { if (m[1] === 'auto') localStorage.removeItem('lr-lite'); else localStorage.setItem('lr-lite', m[1]); }
+    if (m) { if (m[1] === 'auto') { localStorage.removeItem('lr-lite'); localStorage.removeItem('lr-slow'); } else localStorage.setItem('lr-lite', m[1]); }
     forced = localStorage.getItem('lr-lite');
   } catch (e) { /* almacenamiento bloqueado: solo detección */ }
   var measuredSlow = false;
-  try { measuredSlow = sessionStorage.getItem('lr-slow') === '1'; } catch (e) { /* ignorar */ }
+  /* la medición se recuerda 7 días: en la próxima visita el equipo lento entra ya en modo ligero */
+  var WEEK = 7 * 24 * 3600 * 1000;
+  try { var ts = +localStorage.getItem('lr-slow'); measuredSlow = ts > 0 && Date.now() - ts < WEEK; } catch (e) { /* ignorar */ }
 
   /* Solo los equipos claramente débiles entran directo; el resto lo decide la medición de fx.js. */
   var weak = (nav.deviceMemory && nav.deviceMemory <= 2) ||
@@ -31,7 +33,7 @@
     enable: function () {
       if (this.lite || forced === '0') return false;
       this.lite = true; root.classList.add('lite');
-      try { sessionStorage.setItem('lr-slow', '1'); } catch (e) { /* ignorar */ }
+      try { localStorage.setItem('lr-slow', String(Date.now())); } catch (e) { /* ignorar */ }
       document.dispatchEvent(new CustomEvent('lr:lite'));
       return true;
     }

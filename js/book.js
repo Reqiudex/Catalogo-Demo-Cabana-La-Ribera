@@ -83,7 +83,11 @@
     var id = ytId(l.video);
     var poster = l.poster ? '<img class="v-poster" src="' + esc(l.poster) + '" alt="Vista previa del video del lote ' + l.n + '" loading="lazy" decoding="async">' : '';
     var link = id ? '<a class="v-yt" href="https://www.youtube.com/watch?v=' + id + '" target="_blank" rel="noopener">Ver en YouTube</a>' : '';
-    if (id) return '<div class="vbox" data-yt="' + id + '">' + poster + '<div class="v-shield"></div>' + link + '</div>';
+    var titulo = 'Lote ' + pad(l.n) + (l.name ? ' · ' + l.name : '');
+    var full = id ? '<button class="v-full" type="button" data-full="' + id + '" data-title="' + esc(titulo) + '" aria-label="Ver el video del lote ' + l.n + ' en pantalla completa">' +
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+      '<span>Pantalla completa</span></button>' : '';
+    if (id) return '<div class="vbox" data-yt="' + id + '" data-title="' + esc(titulo) + '">' + poster + '<div class="v-shield"></div>' + link + full + '</div>';
     if (l.video) return '<div class="vbox"><video data-mp4 data-src="' + esc(l.video) + '"' + (l.poster ? ' poster="' + esc(l.poster) + '"' : '') + ' muted loop playsinline preload="none"></video><div class="v-shield"></div></div>';
     return '<div class="vbox">' + poster + '</div>';
   }
@@ -225,6 +229,28 @@
     $('#soundLabel').textContent = on ? 'Silenciar música' : 'Activar música';
   }
 
+  function playerOpen() { return !!(window.LRPlayer && window.LRPlayer.isOpen()); }
+  function openPlayer(id, title) { if (window.LRPlayer && id && !FILE_MODE) window.LRPlayer.open(id, title); }
+
+  /* Precarga en segundo plano las imágenes de las páginas cercanas, para que al pasar la hoja
+     ya estén descargadas y decodificadas (antes se cargaban recién al quedar visibles). */
+  var warmT = 0;
+  function warm() {
+    clearTimeout(warmT);
+    warmT = setTimeout(function () {
+      var run = function () {
+        var v = visibleIdx(cur), lo = Math.max(0, v[0] - 2), hi = Math.min(N - 1, v[v.length - 1] + 4);
+        for (var i = lo; i <= hi; i++) {
+          $$('img[loading="lazy"]', pageEls[i]).forEach(function (img) {
+            img.loading = 'eager';
+            if (img.decode) img.decode().catch(function () { /* se decodifica al mostrarse */ });
+          });
+        }
+      };
+      if (window.requestIdleCallback) requestIdleCallback(run, { timeout: 1500 }); else run();
+    }, DUR + 150);
+  }
+
   /* ---------- libro ---------- */
   var book = $('#book'), wrap = $('#bookWrap'), pagesData = [], pageEls = [], sheets = [], leaves = [];
   var mode = null, cur = 0, vis = [];          // cur: spread (escritorio) o índice de página (móvil)
@@ -335,7 +361,7 @@
     var far = Math.abs(target - prev) > 3;
     cur = target;
     layout(prev, cur, animate !== false && !far);
-    syncVisible(prevVis);
+    syncVisible(prevVis); warm();
     updateUI();
   }
   function clearPeek() { $$('.peek-next, .peek-prev', book).forEach(function (e) { e.classList.remove('peek-next', 'peek-prev'); }); }
@@ -380,6 +406,7 @@
     ['pointerdown', 'keydown', 'touchstart'].forEach(function (ev) { document.addEventListener(ev, arrancar, true); });
     $('#goto').addEventListener('change', function (e) { goTo(pageToPos(+e.target.value)); e.target.blur(); });
     document.addEventListener('keydown', function (e) {
+      if (playerOpen()) return;
       var t = e.target && e.target.tagName;
       if (t === 'SELECT' || t === 'INPUT' || t === 'TEXTAREA' || e.altKey || e.ctrlKey || e.metaKey) return;
       if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); next(); }
@@ -393,15 +420,24 @@
     window.addEventListener('pointerup', function (e) {
       if (sx === null) return;
       var dx = e.clientX - sx, dy = e.clientY - sy; sx = null;
+      if (playerOpen()) return;
       if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4 && Date.now() - st < 900) { lastSwipe = Date.now(); dx < 0 ? next() : prev(); }
     });
     /* modo ligero: el video del lote se carga al tocarlo */
     var lastSwipe = 0;
     book.addEventListener('click', function (e) {
-      var box = e.target.closest && e.target.closest('.vbox.tap-to-play');
-      if (!box || Date.now() - lastSwipe < 400 || e.target.closest('.v-yt')) return;
-      box.classList.add('wants-play');
-      embedYT(box);
+      if (!e.target.closest || Date.now() - lastSwipe < 400 || e.target.closest('.v-yt')) return;
+      var fb = e.target.closest('.v-full');
+      if (fb) { e.stopPropagation(); openPlayer(fb.getAttribute('data-full'), fb.getAttribute('data-title')); return; }
+      var box = e.target.closest('.vbox[data-yt]');
+      if (!box || box.classList.contains('no-embed')) return;
+      if (box.classList.contains('tap-to-play')) { box.classList.add('wants-play'); embedYT(box); return; }
+      /* tocar un video que ya se reproduce lo abre en grande */
+      openPlayer(box.getAttribute('data-yt'), box.getAttribute('data-title'));
+    });
+    /* mientras el reproductor grande está abierto, el video de la página se detiene */
+    document.addEventListener('lr:player', function (e) {
+      $$('.page.is-visible iframe.v-frame', book).forEach(function (f) { ytSend(f, e.detail.open ? 'pauseVideo' : 'playVideo'); });
     });
     /* si fx.js detecta que el equipo va lento, pasar a modo ligero sin recargar */
     document.addEventListener('lr:lite', function () {
@@ -424,7 +460,7 @@
     mount(); buildSelect();
     vis = []; cur = -1;
     var t = pageToPos(idx);
-    cur = t; layout(t, t, false); syncVisible(null); updateUI();
+    cur = t; layout(t, t, false); syncVisible(null); updateUI(); warm();
   }
 
   function init() {
@@ -432,7 +468,7 @@
     mount(); buildSelect(); bind();
     var m = /^#p(\d+)$/.exec(location.hash), start = m ? Math.min(N, Math.max(1, +m[1])) - 1 : 0;
     cur = pageToPos(start); vis = [];
-    layout(cur, cur, false); syncVisible(null); updateUI();
+    layout(cur, cur, false); syncVisible(null); updateUI(); warm();
     document.body.classList.add('ready');
     window.__catalog = { goTo: goTo, next: next, prev: prev, state: function () { return { mode: mode, cur: cur, N: N, vis: vis.slice() }; } };
   }

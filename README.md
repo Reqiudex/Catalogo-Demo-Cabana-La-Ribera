@@ -10,7 +10,7 @@ Página estática: HTML + CSS + JavaScript sin frameworks. Se abre con `index.ht
 - **Música de fondo** elegante generada en el navegador (`js/music.js`, Web Audio): empieza con el primer toque y se apaga con el botón **Silenciar música**. No descarga archivos ni tiene derechos de autor.
 - **Datos de referencia**: nombre, nacimiento, padre, madre, DEP y descripción (sin precios: es un remate) son de ejemplo y llevan el aviso `avisoDatos`; reemplázalos en `data/catalog.js`.
 - **Sellos animados** en SVG, diseñados para La Ribera (`js/seals.js`): `premium`, `nelore`, `registro`, `internacional`, `combo`, `top`, `genotipado`, `garantia`.
-- Al cambiar CSS, JS o `data/catalog.js`, sube el `?v=` en `index.html` (Cloudflare guarda esos archivos en caché).
+- Al cambiar CSS, JS, `data/catalog.js` o una imagen de `assets/`, sube el `?v=` (en `index.html`, `data/catalog.js` y `css/style.css`): Cloudflare guarda esos archivos en caché hasta 7 días.
 - Respeta `prefers-reduced-motion` y tiene foco visible para teclado.
 
 ## Estructura
@@ -102,11 +102,24 @@ En Coolify: *New Resource → Public Repository* con este repo, rama `main`, *Bu
 
 ## Animaciones
 
-- Telón de entrada con el logo (una vez por sesión; clic o tecla para saltarlo).
+- Pantalla de carga con el logo y barra de avance real: espera tipografías, imágenes de las primeras páginas (ya decodificadas) y los primeros cuadros del video de portada, con un mínimo de ~2,4 s la primera vez (0,9 s al volver) y un máximo de 9 s. Un toque la salta.
 - Portada: marco que se dibuja, logo y título que enfocan, fecha con brillo dorado, video con zoom lento y polvo dorado flotante.
 - Cada página revela su contenido en cascada al quedar visible; el encabezado del lote se desplaza suavemente y el marco del video tiene un destello.
 - Al apuntar un borde con el mouse, la esquina de la hoja se levanta.
 - Todo se desactiva con `prefers-reduced-motion`.
+
+## Rendimiento y modo ligero
+
+- **Videos de los lotes**: se ven completos en 16:9 (sin zoom ni recortes) y los pósters están recortados a 16:9 exacto. Cada video tiene el botón **Pantalla completa** (`js/player.js`): abre el video con controles y sonido, pide pantalla completa real donde el navegador lo permite (en móvil gira a horizontal) y pausa la música mientras tanto. Tocar un video que ya se reproduce hace lo mismo.
+- Las imágenes de las páginas cercanas se precargan en segundo plano para que al pasar la hoja ya estén listas.
+
+En equipos modestos el catálogo pasa solo a **modo ligero** (`js/perf.js` + medición en `js/fx.js`):
+
+- Se activa directo con ≤ 2 GB de memoria, ≤ 2 núcleos, ahorro de datos o conexión 2G/3G; si no, `fx.js` mide los fotogramas de la portada y lo activa si van por debajo de ~32 por segundo.
+- Quita las animaciones perpetuas, desenfoques, sombras filtradas y el polvo dorado; la portada queda fija y los videos de los lotes se cargan al tocarlos.
+- Forzar: `?lite=1` (siempre ligero), `?lite=0` (nunca), `?lite=auto` (volver a automático). Se recuerda en el navegador; la medición automática, durante 7 días.
+
+Para todos: el polvo dorado usa un sprite a 30 fps, en escritorio solo se pintan las hojas visibles, YouTube se carga cuando termina el giro de página y el video de portada pesa 2,5 MB (720p) o 1,1 MB (480p, móvil).
 
 ## Créditos y contenido
 

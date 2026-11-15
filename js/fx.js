@@ -22,19 +22,72 @@
     }
     onIntroDone.forEach(function (f) { f(); });
   }
+  /* Pantalla de carga: espera a lo que necesita la primera página (tipografías, imágenes de
+     portada y de las páginas siguientes ya decodificadas, primeros cuadros del video de portada)
+     y recién entonces abre el telón. Muestra el avance real. Nunca espera más de MAX_MS. */
   var seen = false;
   try { seen = sessionStorage.getItem('lr-intro') === '1'; } catch (e) { /* ignorar */ }
-  if (!intro || reduced || seen) {
-    if (intro) intro.parentNode.removeChild(intro);
-    intro = null; endIntro();
-  } else {
-    var minMs = isLite() ? 900 : 2300, maxMs = isLite() ? 2200 : 4200;
-    var minTime = new Promise(function (r) { setTimeout(r, minMs); });
-    var loaded = new Promise(function (r) { if (document.readyState === 'complete') r(); else window.addEventListener('load', r); });
-    var maxTime = new Promise(function (r) { setTimeout(r, maxMs); });
-    Promise.race([Promise.all([minTime, loaded]), maxTime]).then(endIntro);
-    intro.addEventListener('click', endIntro);
-    document.addEventListener('keydown', endIntro, { once: true });
+  var bar = document.getElementById('introBar'), pctEl = document.getElementById('introPct');
+  var total = 0, done = 0, shown = 0;
+  function paint() {
+    var p = total ? done / total : 1;
+    shown = Math.max(shown, p);                       // la barra nunca retrocede
+    if (bar) bar.style.transform = 'scaleX(' + shown.toFixed(3) + ')';
+    if (pctEl) pctEl.textContent = shown >= 1 ? 'Listo' : 'Preparando el catálogo · ' + Math.round(shown * 100) + '%';
+  }
+  function step(promise, weight, ms) {
+    total += weight;
+    var capped = Promise.race([promise, new Promise(function (r) { setTimeout(r, ms); })]);
+    return capped.then(function () { done += weight; paint(); }, function () { done += weight; paint(); });
+  }
+  function imgReady(src) {
+    return new Promise(function (res) {
+      var i = new Image();
+      i.decoding = 'async';
+      i.onload = function () { (i.decode ? i.decode() : Promise.resolve()).then(res, res); };
+      i.onerror = res;
+      i.src = src;
+    });
+  }
+  function criticalImages() {
+    var list = [], seenSrc = {};
+    var add = function (u) { if (u && !seenSrc[u]) { seenSrc[u] = 1; list.push(u); } };
+    // imágenes de las primeras páginas (portada, bienvenida, agenda y primer lote)
+    Array.prototype.slice.call(document.querySelectorAll('.page')).slice(0, 4).forEach(function (pg) {
+      Array.prototype.slice.call(pg.querySelectorAll('img')).forEach(function (im) { add(im.currentSrc || im.src); });
+      var bg = getComputedStyle(pg).backgroundImage, m = /url\(["']?([^"')]+)["']?\)/.exec(bg || '');
+      if (m) add(m[1]);
+    });
+    return list;
+  }
+  function coverVideoReady() {
+    var v = document.querySelector('.page--cover video');
+    if (!v || isLite() || reduced || !v.getAttribute('src')) return Promise.resolve();
+    if (v.readyState >= 3) return Promise.resolve();
+    return new Promise(function (r) { v.addEventListener('canplay', r, { once: true }); v.addEventListener('error', r, { once: true }); });
+  }
+
+  if (!intro) { endIntro(); }
+  else {
+    var MIN_MS = seen ? 900 : (isLite() ? 1400 : 2400);   // unos segundos de presentación la primera vez
+    var MAX_MS = 9000;                                     // con red muy lenta, entrar igual
+    var fontsReady = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+    var tasks = [step(fontsReady, 2, 4000)];
+    criticalImages().forEach(function (u) { tasks.push(step(imgReady(u), 1, 6000)); });
+    tasks.push(step(coverVideoReady(), 3, 5000));
+    tasks.push(step(new Promise(function (r) { if (document.readyState === 'complete') r(); else window.addEventListener('load', r); }), 1, 7000));
+    paint();
+    var minTime = new Promise(function (r) { setTimeout(r, MIN_MS); });
+    var ready = Promise.all(tasks).then(function () {
+      // dos cuadros de margen para que el navegador termine de pintar antes de abrir el telón
+      return new Promise(function (r) { requestAnimationFrame(function () { requestAnimationFrame(r); }); });
+    });
+    Promise.race([Promise.all([minTime, ready]), new Promise(function (r) { setTimeout(r, MAX_MS); })]).then(function () {
+      done = total; paint();
+      setTimeout(endIntro, 180);
+    });
+    intro.addEventListener('click', function () { if (Date.now() - t0 > 700) endIntro(); });
+    var t0 = Date.now();
   }
   if (reduced) return;
 
