@@ -600,3 +600,16 @@ html, body { overflow-x: clip; }
 /* Áreas táctiles de al menos 24 px (WCAG 2.5.8). */
 .ct-list a, .back-contact a { display: inline-flex; align-items: center; min-height: 24px; }
 .v-full { min-height: 28px; }
+/* Ficha del lote legible en móvil (antes etiquetas de 6,7 px y valores de 9-10 px en un teléfono de 360 px). */
+/* Modo una página: textos de la ficha algo mayores siempre... */
+html[data-mode="single"] .page--lot .spec dt { font-size: .7em; letter-spacing: .16em; }
+html[data-mode="single"] .lot-note { font-size: .62em; }
+/* ...y en teléfonos alargados (con altura de sobra) la página usa esa altura y la letra crece más. */
+@media (max-aspect-ratio: 12/25) {
+  html[data-mode="single"] .book-wrap { height: min(calc(100dvh - var(--bar) - 56px), calc(var(--pw) / .56)); }
+  html[data-mode="single"] .page--lot .spec dt { font-size: .8em; letter-spacing: .14em; }
+  html[data-mode="single"] .page--lot .spec dd { font-size: 1.1em; }
+  html[data-mode="single"] .lot-note { font-size: .7em; }
+  html[data-mode="single"] .page--lot .cta { font-size: .84em; }
+  html[data-mode="single"] .lot-brand { font-size: .76em; }
+}
