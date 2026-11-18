@@ -7,8 +7,11 @@ const CHROME = process.env.CHROME || process.env.HOME + '/.cache/ms-playwright/c
 (async () => {
   const b = await chromium.launch({ executablePath: CHROME });
   let fallos = 0;
-  for (const [w, h] of [[360, 640], [375, 667], [360, 740], [375, 812], [360, 800], [390, 844], [412, 915], [768, 1024]]) {
-    const p = await (await b.newContext({ viewport: { width: w, height: h }, isMobile: true, hasTouch: true })).newPage();
+  // ESCRITORIO=1 revisa el modo libro (dos páginas) en pantallas de portátil y monitor.
+  const ESC = process.env.ESCRITORIO === '1';
+  const tamanos = ESC ? [[1024, 640], [1280, 720], [1366, 768], [1440, 900], [1920, 1080]] : [[360, 640], [375, 667], [360, 740], [375, 812], [360, 800], [390, 844], [412, 915], [768, 1024]];
+  for (const [w, h] of tamanos) {
+    const p = await (await b.newContext({ viewport: { width: w, height: h }, isMobile: !ESC, hasTouch: !ESC })).newPage();
     await p.goto(url + (url.includes('?') ? '&' : '?') + 'lite=1', { waitUntil: 'load' });
     if (css) await p.addStyleTag({ content: css });
     await p.waitForTimeout(2500);

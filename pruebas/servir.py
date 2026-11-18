@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Servidor local de pruebas: sirve el repo como nginx en lo esencial.
-/v<números>/ruta -> /ruta (versión de CSS/JS en la ruta) y /data/raw/ bloqueado.
+"""Servidor local de pruebas: sirve el repo como nginx en lo esencial (/data/raw/ bloqueado).
+También acepta /v<números>/ruta -> /ruta por compatibilidad con enlaces versionados por ruta.
 Uso: python3 pruebas/servir.py [puerto]"""
 import http.server, os, re, sys
 

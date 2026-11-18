@@ -10,7 +10,7 @@ Página estática: HTML + CSS + JavaScript sin frameworks. Se abre con `index.ht
 - **Música de fondo** elegante generada en el navegador (`js/music.js`, Web Audio): empieza con el primer toque y se apaga con el botón **Silenciar música**. No descarga archivos ni tiene derechos de autor.
 - **Datos de referencia**: nombre, nacimiento, padre, madre, DEP y descripción (sin precios: es un remate) son de ejemplo y llevan el aviso `avisoDatos`; reemplázalos en `data/catalog.js`.
 - **Sellos animados** en SVG, diseñados para La Ribera (`js/seals.js`): `premium`, `nelore`, `registro`, `internacional`, `combo`, `top`, `genotipado`, `garantia`.
-- Al cambiar CSS, JS, `data/catalog.js` o una imagen de `assets/`, sube el `?v=` (en `index.html`, `data/catalog.js` y `css/style.css`): Cloudflare guarda esos archivos en caché hasta 7 días.
+- Caché: CSS y JS se sirven sin versión en la URL y con 5 minutos de caché (tras publicar, como mucho 5 minutos con la versión anterior). Las imágenes se guardan 7 días: **si cambias una imagen, cámbiale el nombre de archivo** y actualiza la referencia. No uses `?v=`: la copia de emergencia del guardián de Cloudflare descarta las URLs con `?`.
 - Respeta `prefers-reduced-motion` y tiene foco visible para teclado.
 
 ## Estructura

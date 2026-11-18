@@ -53,7 +53,8 @@
     var list = [], seenSrc = {};
     var add = function (u) { if (u && !seenSrc[u]) { seenSrc[u] = 1; list.push(u); } };
     // imágenes de las primeras páginas (portada, bienvenida, agenda y primer lote)
-    Array.prototype.slice.call(document.querySelectorAll('.page')).slice(0, 4).forEach(function (pg) {
+    // Solo lo que se ve al abrir el telón; las páginas siguientes las precarga el libro en segundo plano.
+    Array.prototype.slice.call(document.querySelectorAll('.page.is-visible')).forEach(function (pg) {
       Array.prototype.slice.call(pg.querySelectorAll('img')).forEach(function (im) { add(im.currentSrc || im.src); });
       var bg = getComputedStyle(pg).backgroundImage, m = /url\(["']?([^"')]+)["']?\)/.exec(bg || '');
       if (m) add(m[1]);
@@ -76,7 +77,8 @@
     var fontsReady = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
     var tasks = [step(fontsReady, 2, 4000)];
     criticalImages().forEach(function (u) { tasks.push(step(imgReady(u), 1, 6000)); });
-    tasks.push(step(coverVideoReady(), 3, 5000));
+    // El video de portada no se espera: mientras carga se ve su póster (precargado), que es lo mismo que
+    // muestra el primer cuadro. Esperarlo retrasaba la portada hasta 5 s en redes lentas.
     tasks.push(step(new Promise(function (r) { if (document.readyState === 'complete') r(); else window.addEventListener('load', r); }), 1, 7000));
     paint();
     var minTime = new Promise(function (r) { setTimeout(r, MIN_MS); });

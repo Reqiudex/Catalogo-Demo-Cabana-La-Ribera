@@ -16,8 +16,7 @@ otro Chromium se indica con la variable `CHROME`.
 ## Servir la web
 
 Como en producción (recomendado): `docker build -t laribera . && docker run --rm -p 127.0.0.1:8080:8080 laribera`.
-Sin Docker: `python3 pruebas/servir.py 8080`. Imita la regla de nginx que convierte `/v<versión>/css/…` en `/css/…`.
-`python3 -m http.server` ya no sirve: no conoce las rutas versionadas.
+Sin Docker: `python3 pruebas/servir.py 8080` (como `python3 -m http.server`, pero bloquea `data/raw/` igual que nginx).
 
 ## Pruebas
 

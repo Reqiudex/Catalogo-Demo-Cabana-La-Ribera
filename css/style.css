@@ -160,7 +160,7 @@ html[data-mode="single"] .page { --pw: min(calc(100vw - 20px), calc((100dvh - va
 /* --- portada / contraportada --- */
 .page--cover, .page--back { background: var(--night); color: #fff; }
 .cover-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .78; }
-.page--cover { background: var(--night) center/cover url('../../assets/info1-image-mobile.webp'); } /* misma URL que el póster del video y la precarga: una sola descarga */
+.page--cover { background: var(--night) center/cover url('../assets/info1-image-mobile.webp'); } /* misma URL que el póster del video y la precarga: una sola descarga */
 .page--back { background: radial-gradient(90% 60% at 50% 0%, rgba(255, 165, 0, .35), transparent 70%), var(--night); }
 .cover-veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(23, 13, 7, .78), rgba(23, 13, 7, .1) 34%, rgba(23, 13, 7, .18) 58%, rgba(23, 13, 7, .88)); }
 .cover-frame { position: absolute; inset: 1em; border: 1px solid rgba(246, 220, 148, .65); outline: 1px solid rgba(246, 220, 148, .25); outline-offset: .35em; pointer-events: none; }
@@ -613,3 +613,5 @@ html[data-mode="single"] .lot-note { font-size: .62em; }
   html[data-mode="single"] .page--lot .cta { font-size: .84em; }
   html[data-mode="single"] .lot-brand { font-size: .76em; }
 }
+/* Modo libro: etiquetas de la ficha un poco mayores (7 → 7,6 px a 1366 px; no hay más espacio sin rediseñar). */
+.spec dt { font-size: .67em; letter-spacing: .18em; }
