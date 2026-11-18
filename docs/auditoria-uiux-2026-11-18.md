@@ -91,7 +91,34 @@ iniciar"); queda como decisión de Luciano.
 - **Volver atrás:** redeploy en Coolify del despliegue anterior (`9e4045c`), o `git revert` de los commits en
   `main` y redeploy. Sin base de datos ni variables de entorno.
 
+## Publicado en producción (18/11/2026, 14:31)
+
+- Commit `df4d6b9` desplegado en `catalogo-la-ribera` desde Coolify (por API: el push no despliega solo).
+  Respaldo previo en `~/respaldo/manual/catalogo-la-ribera-20261118-1428/`.
+- `~/check-webs.sh` idéntico antes y después (16 en línea, 0 fallas, 5 apagadas a propósito).
+- Los CSS y JS que sirve Cloudflare coinciden con los del repo en los dos dominios; GitHub Pages sigue sirviendo.
+
+| Medida en `https://cabanalaribera.cerice360.com` | Antes (`9e4045c`) | Después |
+|---|---|---|
+| Lighthouse móvil, rendimiento | 35 | **66** (65-67) |
+| Lighthouse escritorio, rendimiento | 53 | **91** |
+| Accesibilidad / buenas prácticas | 90 / 100 | **100 / 100** |
+| SEO | 92 | 92 (Cloudflare antepone su `robots.txt` gestionado, que Lighthouse marca como inválido) |
+| CLS móvil | 0,080 | **0,007** |
+| Peso total de la portada | 1.589 KB | **679 KB** |
+| Violaciones axe (8 vistas × 4 anchos) | 3 tipos | **0** |
+
+Una vez, a 1366 px, la consola registró un intento de evaluar texto como JavaScript bloqueado por la CSP. El
+código del catálogo no usa `eval` ni similares y no se reprodujo; se atribuye a la herramienta de prueba.
+
 ## Pendiente y decisiones de Luciano
+
+- **Caché de navegador en Cloudflare:** la zona `cerice360.com` tiene "Browser Cache TTL" de 4 h, que reemplaza los
+  5 minutos que envía el servidor para CSS y JS. Tras publicar, un visitante que entró en las 4 h anteriores
+  puede ver el HTML nuevo con el CSS/JS anterior. Opciones: poner esa opción en "Respect Existing Headers"
+  (afecta a todas las webs de la zona) o versionar por nombre de archivo (`style.20261118.css`). No se tocó.
+- La copia de emergencia se renovará en la ejecución diaria del guardián (08:30 UTC); el 18/11 a las 13:04 su
+  despliegue registró un error en `copias.log` (otro proyecto; no se tocó).
 
 - Teléfonos pequeños (360×640, 375×667): la página está limitada por la altura y la ficha sigue con letra
   pequeña (valores de 8,5-9 px). Se puede ampliar con los dedos (el zoom está permitido); mejorarlo exige
