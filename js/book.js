@@ -40,8 +40,8 @@
       '<video class="cover-video" data-mp4 data-src="' + esc(C.videoPortada) + '" data-src-lite="' + esc(C.videoPortadaLigero || C.videoPortada) + '" poster="' + esc(IMG.atardecerMovil) + '" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>' +
       '<div class="cover-veil"></div><div class="cover-frame"></div>' +
       '<div class="cover-body">' +
-      '<img class="cover-logo" src="' + esc(IMG.logo) + '" alt="' + esc(e.marca) + ' — ' + esc(e.raza) + '">' +
-      '<img class="cover-title" src="' + esc(IMG.titulo) + '" alt="' + esc(e.titulo) + ' — ' + esc(e.subtitulo) + '">' +
+      '<img class="cover-logo" src="' + esc(IMG.logo) + '" width="640" height="355" alt="' + esc(e.marca) + ' — ' + esc(e.raza) + '">' +
+      '<img class="cover-title" src="' + esc(IMG.titulo) + '" width="1400" height="758" alt="' + esc(e.titulo) + ' — ' + esc(e.subtitulo) + '">' +
       '<p class="cover-date"><span>' + esc(e.fechaCorta) + '</span></p>' +
       '<p class="cover-kicker">Catálogo digital · 38 lotes</p>' +
       '<p class="cover-hint"><span class="hint-hand" aria-hidden="true"></span>Toca el borde o desliza para abrir</p>' +
@@ -145,7 +145,7 @@
       '<section class="page page--back">' +
       '<div class="cover-veil"></div><div class="cover-frame"></div>' +
       '<div class="cover-body">' +
-      '<img class="cover-logo" src="' + esc(IMG.logo) + '" alt="' + esc(e.marca) + '">' +
+      '<img class="cover-logo" src="' + esc(IMG.logo) + '" width="640" height="355" alt="' + esc(e.marca) + '">' +
       '<p class="back-lema">' + esc(e.lema) + '</p>' +
       '<p class="back-date">' + esc(e.fechaLarga) + '<br><span>' + esc(e.lugar) + '</span></p>' +
       '<p class="back-contact"><a href="tel:' + esc(C.contacto.telefono.replace(/\s/g, '')) + '">' + esc(C.contacto.telefono) + '</a><br><a href="mailto:' + esc(C.contacto.email) + '">' + esc(C.contacto.email) + '</a></p>' +

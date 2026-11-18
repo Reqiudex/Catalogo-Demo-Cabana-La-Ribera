@@ -69,7 +69,9 @@
 
   if (!intro) { endIntro(); }
   else {
-    var MIN_MS = seen ? 900 : (isLite() ? 1400 : 2400);   // unos segundos de presentación la primera vez
+    // Presentación mínima corta: el telón ya espera a que todo esté listo, así que alargarlo solo retrasa
+    // la portada (con 2,4 s el primer pintado útil llegaba a 4 s en móvil).
+    var MIN_MS = seen ? 700 : (isLite() ? 1000 : 1500);
     var MAX_MS = 9000;                                     // con red muy lenta, entrar igual
     var fontsReady = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
     var tasks = [step(fontsReady, 2, 4000)];
